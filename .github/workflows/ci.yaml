@@ -17,8 +17,10 @@ jobs:
         env:
             APP_DEBUG: 1
             APP_ENV: dev
+            APP_RUNTIME_OPTIONS: '{"disable_dotenv": true}'
             APP_SECRET: ci-secret
             DATABASE_URL: "mysql://app:app@127.0.0.1:3306/rental_pricing?serverVersion=8.4.0&charset=utf8mb4"
+            DEFAULT_URI: "http://localhost"
 
         steps:
             - name: Checkout repository
@@ -48,8 +50,10 @@ jobs:
         env:
             APP_DEBUG: 0
             APP_ENV: test
+            APP_RUNTIME_OPTIONS: '{"disable_dotenv": true}'
             APP_SECRET: ci-secret
             DATABASE_URL: "mysql://app:app@127.0.0.1:3306/rental_pricing?serverVersion=8.4.0&charset=utf8mb4"
+            DEFAULT_URI: "http://localhost"
 
         services:
             mysql:
