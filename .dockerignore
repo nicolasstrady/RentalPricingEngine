@@ -1,0 +1,11 @@
+.git
+.idea
+.vscode
+.env*
+var
+vendor
+coverage
+.phpunit.cache
+.phpunit.result.cache
+.php-cs-fixer.cache
+.phpstan.cache
