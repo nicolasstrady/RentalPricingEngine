@@ -6,7 +6,7 @@ CONSOLE = $(PHP) php bin/console
 .PHONY: up down build rebuild install shell logs console database database-create migrate fixtures test-database test analyse cs-fix cs-check lint composer-validate quality
 
 up:
-	$(COMPOSE) up --detach
+	$(COMPOSE) up --build
 
 down:
 	$(COMPOSE) down
