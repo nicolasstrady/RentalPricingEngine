@@ -1,0 +1,86 @@
+name: CI
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+
+permissions:
+    contents: read
+
+jobs:
+    lint:
+        name: Lint
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        env:
+            APP_DEBUG: 1
+            APP_ENV: dev
+            APP_SECRET: ci-secret
+            DATABASE_URL: "mysql://app:app@127.0.0.1:3306/rental_pricing?serverVersion=8.4.0&charset=utf8mb4"
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
+
+            - name: Set up PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: "8.4"
+                  extensions: intl, pdo_mysql, zip
+                  coverage: none
+                  tools: composer:v2
+
+            - name: Validate Composer configuration
+              run: composer validate --strict
+
+            - name: Install dependencies
+              run: composer install --prefer-dist --no-interaction --no-progress
+
+            - name: Run PHP CS Fixer and PHPStan
+              run: composer lint
+
+    tests:
+        name: Tests
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        env:
+            APP_DEBUG: 0
+            APP_ENV: test
+            APP_SECRET: ci-secret
+            DATABASE_URL: "mysql://app:app@127.0.0.1:3306/rental_pricing?serverVersion=8.4.0&charset=utf8mb4"
+
+        services:
+            mysql:
+                image: mysql:8.4
+                env:
+                    MYSQL_DATABASE: rental_pricing_test
+                    MYSQL_PASSWORD: app
+                    MYSQL_ROOT_PASSWORD: root
+                    MYSQL_USER: app
+                ports:
+                    - 3306:3306
+                options: >-
+                    --health-cmd="mysqladmin ping --host=127.0.0.1 --user=root --password=root --silent"
+                    --health-interval=5s
+                    --health-timeout=5s
+                    --health-retries=10
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
+
+            - name: Set up PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: "8.4"
+                  extensions: intl, pdo_mysql, zip
+                  coverage: none
+                  tools: composer:v2
+
+            - name: Install dependencies
+              run: composer install --prefer-dist --no-interaction --no-progress
+
+            - name: Run PHPUnit
+              run: composer test
