@@ -36,7 +36,7 @@ class Equipment
     public function __construct(string $name, PricingModel $pricingModel)
     {
         $this->pricingRates = new ArrayCollection();
-        $this->rename($name);
+        $this->setName($name);
         $this->pricingModel = $pricingModel;
     }
 
@@ -50,7 +50,7 @@ class Equipment
         return $this->name;
     }
 
-    public function rename(string $name): void
+    public function setName(string $name): void
     {
         $name = trim($name);
 
