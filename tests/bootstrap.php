@@ -1,8 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
 use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\Filesystem\Filesystem;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
@@ -14,4 +13,8 @@ if (is_file($envFile)) {
 
 if ($_SERVER['APP_DEBUG'] ?? false) {
     umask(0000);
+}
+
+if (false === (bool) ($_SERVER['APP_DEBUG'] ?? false)) {
+    (new Filesystem())->remove(dirname(__DIR__).'/var/cache/test');
 }
