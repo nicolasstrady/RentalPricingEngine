@@ -21,6 +21,7 @@ final class PricingRateTest extends TestCase
             'durationInDays' => null,
         ]);
 
+        self::assertNull($rate->getId());
         self::assertNull($rate->getDurationInDays());
         self::assertSame(150, $rate->getAmount());
     }

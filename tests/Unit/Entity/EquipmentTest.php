@@ -26,6 +26,14 @@ final class EquipmentTest extends TestCase
         self::assertTrue($equipment->getPricingRates()->contains($rate));
         self::assertSame($equipment, $rate->getEquipment());
 
+        $equipment->addPricingRate($rate);
+
+        self::assertCount(1, $equipment->getPricingRates());
+
+        $equipment->setPricingModel(PricingModel::FlatRate);
+
+        self::assertSame(PricingModel::FlatRate, $equipment->getPricingModel());
+
         $equipment->removePricingRate($rate);
 
         self::assertFalse($equipment->getPricingRates()->contains($rate));

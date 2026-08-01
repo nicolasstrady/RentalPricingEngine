@@ -42,6 +42,15 @@ final class MinimumRentalPriceCalculatorTest extends TestCase
         self::assertSame(70, (new MinimumRentalPriceCalculator())->calculate(7, $options));
     }
 
+    public function testItSkipsUnreachableIntermediateDurations(): void
+    {
+        $options = [
+            ['durationInDays' => 2, 'amount' => 10],
+        ];
+
+        self::assertSame(20, (new MinimumRentalPriceCalculator())->calculate(3, $options));
+    }
+
     public function testItRejectsANonPositiveRequestedDuration(): void
     {
         $this->expectException(\InvalidArgumentException::class);
