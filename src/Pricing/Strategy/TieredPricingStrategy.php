@@ -5,7 +5,6 @@ namespace App\Pricing\Strategy;
 use App\Entity\Equipment;
 use App\Enum\PricingModel;
 use App\Pricing\Calculator\MinimumRentalPriceCalculator;
-use App\Pricing\Contract\PricingStrategyInterface;
 use App\Pricing\Exception\InvalidPricingRateException;
 
 final readonly class TieredPricingStrategy implements PricingStrategyInterface

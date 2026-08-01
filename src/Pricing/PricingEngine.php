@@ -3,8 +3,8 @@
 namespace App\Pricing;
 
 use App\Entity\Equipment;
-use App\Pricing\Contract\PricingStrategyInterface;
 use App\Pricing\Exception\UnsupportedPricingModelException;
+use App\Pricing\Strategy\PricingStrategyInterface;
 
 final readonly class PricingEngine
 {

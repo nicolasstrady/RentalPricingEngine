@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Pricing\Contract;
+namespace App\Pricing\Strategy;
 
 use App\Entity\Equipment;
 use App\Enum\PricingModel;
