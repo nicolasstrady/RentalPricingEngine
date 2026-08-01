@@ -12,6 +12,8 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+      - php_vendor:/app/vendor
+      - php_cache:/app/var/cache
 
   database:
     image: mysql:8.4
@@ -34,3 +36,5 @@ services:
 
 volumes:
   mysql_data:
+  php_vendor:
+  php_cache:

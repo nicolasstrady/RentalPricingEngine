@@ -3,7 +3,7 @@ PHP = $(COMPOSE) exec php
 COMPOSER = $(PHP) composer
 CONSOLE = $(PHP) php bin/console
 
-.PHONY: up down build rebuild install shell logs console database database-create migrate fixtures test-database test analyse cs-fix cs-check lint composer-validate quality
+.PHONY: up down build rebuild install shell logs console database database-create migrate fixtures test-database test coverage analyse cs-fix cs-check lint composer-validate quality
 
 up:
 	$(COMPOSE) up --build
@@ -45,6 +45,9 @@ test-database:
 
 test:
 	$(COMPOSER) test
+
+coverage: test-database
+	$(COMPOSE) exec -e XDEBUG_MODE=coverage php php bin/phpunit --coverage-text --coverage-html var/coverage
 
 analyse:
 	$(COMPOSER) analyse
