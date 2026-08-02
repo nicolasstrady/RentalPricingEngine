@@ -5,7 +5,6 @@ namespace App\Pricing\Strategy;
 use App\Entity\Equipment;
 use App\Enum\PricingModel;
 use App\Pricing\Calculator\MinimumRentalPriceCalculator;
-use App\Pricing\Contract\PricingStrategyInterface;
 use App\Pricing\Exception\InvalidPricingRateException;
 
 final readonly class TieredPricingStrategy implements PricingStrategyInterface
@@ -19,7 +18,7 @@ final readonly class TieredPricingStrategy implements PricingStrategyInterface
         return PricingModel::Tiered === $pricingModel;
     }
 
-    public function calculate(Equipment $equipment, int $durationInDays): int
+    public function calculate(Equipment $equipment, int $durationInDays): float
     {
         $options = [];
 

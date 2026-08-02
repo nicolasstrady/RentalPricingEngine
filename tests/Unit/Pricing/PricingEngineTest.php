@@ -29,12 +29,12 @@ final class PricingEngineTest extends TestCase
         PricingRateFactory::createSequence([
             [
                 'equipment' => $this->equipment,
-                'amount' => 20,
+                'amount' => 20.10,
                 'durationInDays' => 1,
             ],
             [
                 'equipment' => $this->equipment,
-                'amount' => 60,
+                'amount' => 60.55,
                 'durationInDays' => 7,
             ],
         ]);
@@ -44,7 +44,7 @@ final class PricingEngineTest extends TestCase
             new TieredPricingStrategy(new MinimumRentalPriceCalculator()),
         ]);
 
-        self::assertSame(80, $engine->calculate($this->equipment, 8));
+        self::assertSame(80.65, $engine->calculate($this->equipment, 8));
     }
 
     public function testItRejectsAModelWithoutAStrategy(): void

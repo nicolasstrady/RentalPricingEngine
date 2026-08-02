@@ -39,7 +39,7 @@ final class PricingControllerTest extends WebTestCase
                 'startDate' => '2026-08-01',
                 'endDate' => '2026-08-08',
                 'durationInDays' => 8,
-                'amount' => 80,
+                'amount' => 80.65,
                 'currency' => 'EUR',
             ], JSON_THROW_ON_ERROR),
             (string) $client->getResponse()->getContent(),
@@ -54,7 +54,7 @@ final class PricingControllerTest extends WebTestCase
         ]);
         PricingRateFactory::createOne([
             'equipment' => $equipment,
-            'amount' => 150,
+            'amount' => 150.75,
             'durationInDays' => null,
         ]);
         $equipmentId = $equipment->getId();
@@ -76,7 +76,7 @@ final class PricingControllerTest extends WebTestCase
                 'startDate' => '2026-08-01',
                 'endDate' => '2026-09-11',
                 'durationInDays' => 42,
-                'amount' => 150,
+                'amount' => 150.75,
                 'currency' => 'EUR',
             ], JSON_THROW_ON_ERROR),
             (string) $client->getResponse()->getContent(),
@@ -150,17 +150,17 @@ final class PricingControllerTest extends WebTestCase
         PricingRateFactory::createSequence([
             [
                 'equipment' => $equipment,
-                'amount' => 20,
+                'amount' => 20.10,
                 'durationInDays' => 1,
             ],
             [
                 'equipment' => $equipment,
-                'amount' => 60,
+                'amount' => 60.55,
                 'durationInDays' => 7,
             ],
             [
                 'equipment' => $equipment,
-                'amount' => 200,
+                'amount' => 200.99,
                 'durationInDays' => 30,
             ],
         ]);

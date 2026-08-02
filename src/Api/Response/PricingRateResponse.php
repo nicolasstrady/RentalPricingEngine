@@ -8,7 +8,7 @@ final readonly class PricingRateResponse
 {
     public function __construct(
         public ?int $durationInDays,
-        public int $amount,
+        public float $amount,
     ) {
     }
 

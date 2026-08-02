@@ -41,7 +41,7 @@ final class AppStoryTest extends KernelTestCase
         $flatRate = $pressureWasher->getPricingRates()->first();
         self::assertNotFalse($flatRate);
         self::assertNull($flatRate->getDurationInDays());
-        self::assertSame(150, $flatRate->getAmount());
+        self::assertSame(150.0, $flatRate->getAmount());
 
         $carpetCleaner = EquipmentFactory::find(['name' => 'Shampouineuse']);
         self::assertSame(PricingModel::FlatRate, $carpetCleaner->getPricingModel());

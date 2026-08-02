@@ -32,22 +32,22 @@ final class TieredPricingStrategyTest extends TestCase
         PricingRateFactory::createSequence([
             [
                 'equipment' => $equipment,
-                'amount' => 20,
+                'amount' => 20.10,
                 'durationInDays' => 1,
             ],
             [
                 'equipment' => $equipment,
-                'amount' => 60,
+                'amount' => 60.55,
                 'durationInDays' => 7,
             ],
             [
                 'equipment' => $equipment,
-                'amount' => 200,
+                'amount' => 200.99,
                 'durationInDays' => 30,
             ],
         ]);
 
-        self::assertSame(80, $this->strategy->calculate($equipment, 8));
+        self::assertSame(80.65, $this->strategy->calculate($equipment, 8));
     }
 
     public function testItRejectsARateWithoutADuration(): void

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\PricingRateRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PricingRateRepository::class)]
@@ -23,10 +24,10 @@ class PricingRate
     #[ORM\Column(nullable: true)]
     private ?int $durationInDays;
 
-    #[ORM\Column]
-    private int $amount;
+    #[ORM\Column(type: Types::FLOAT)]
+    private float $amount;
 
-    public function __construct(Equipment $equipment, int $amount, ?int $durationInDays)
+    public function __construct(Equipment $equipment, float $amount, ?int $durationInDays)
     {
         $this->setAmount($amount);
         $this->setDurationInDays($durationInDays);
@@ -62,17 +63,21 @@ class PricingRate
         $this->durationInDays = $durationInDays;
     }
 
-    public function getAmount(): int
+    public function getAmount(): float
     {
         return $this->amount;
     }
 
-    public function setAmount(int $amount): void
+    public function setAmount(float $amount): void
     {
+        if (!is_finite($amount)) {
+            throw new \InvalidArgumentException('Pricing amount must be finite.');
+        }
+
         if ($amount < 0) {
             throw new \InvalidArgumentException('Pricing amount cannot be negative.');
         }
 
-        $this->amount = $amount;
+        $this->amount = round($amount, 2, PHP_ROUND_HALF_UP);
     }
 }

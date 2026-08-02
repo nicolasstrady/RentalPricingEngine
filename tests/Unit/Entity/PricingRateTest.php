@@ -17,25 +17,26 @@ final class PricingRateTest extends TestCase
         ]);
         $rate = PricingRateFactory::createOne([
             'equipment' => $equipment,
-            'amount' => 150,
+            'amount' => 150.755,
             'durationInDays' => null,
         ]);
 
         self::assertNull($rate->getId());
         self::assertNull($rate->getDurationInDays());
-        self::assertSame(150, $rate->getAmount());
+        self::assertSame(150.76, $rate->getAmount());
     }
 
-    /** @return iterable<string, array{int, int|null, string}> */
+    /** @return iterable<string, array{float, int|null, string}> */
     public static function invalidValues(): iterable
     {
-        yield 'negative amount' => [-1, 1, 'Pricing amount cannot be negative.'];
-        yield 'zero duration' => [100, 0, 'Pricing duration must be positive or null.'];
-        yield 'negative duration' => [100, -1, 'Pricing duration must be positive or null.'];
+        yield 'negative amount' => [-1.0, 1, 'Pricing amount cannot be negative.'];
+        yield 'infinite amount' => [INF, 1, 'Pricing amount must be finite.'];
+        yield 'zero duration' => [100.0, 0, 'Pricing duration must be positive or null.'];
+        yield 'negative duration' => [100.0, -1, 'Pricing duration must be positive or null.'];
     }
 
     #[DataProvider('invalidValues')]
-    public function testItRejectsInvalidValues(int $amount, ?int $durationInDays, string $message): void
+    public function testItRejectsInvalidValues(float $amount, ?int $durationInDays, string $message): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessageIs($message);

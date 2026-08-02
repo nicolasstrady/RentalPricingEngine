@@ -3,8 +3,8 @@
 namespace App\Pricing;
 
 use App\Entity\Equipment;
-use App\Pricing\Contract\PricingStrategyInterface;
 use App\Pricing\Exception\UnsupportedPricingModelException;
+use App\Pricing\Strategy\PricingStrategyInterface;
 
 final readonly class PricingEngine
 {
@@ -13,7 +13,7 @@ final readonly class PricingEngine
     {
     }
 
-    public function calculate(Equipment $equipment, int $durationInDays): int
+    public function calculate(Equipment $equipment, int $durationInDays): float
     {
         if ($durationInDays <= 0) {
             throw new \InvalidArgumentException('Rental duration must be positive.');
@@ -21,7 +21,7 @@ final readonly class PricingEngine
 
         foreach ($this->strategies as $strategy) {
             if ($strategy->supports($equipment->getPricingModel())) {
-                return $strategy->calculate($equipment, $durationInDays);
+                return round($strategy->calculate($equipment, $durationInDays), 2, PHP_ROUND_HALF_UP);
             }
         }
 

@@ -4,7 +4,6 @@ namespace App\Pricing\Strategy;
 
 use App\Entity\Equipment;
 use App\Enum\PricingModel;
-use App\Pricing\Contract\PricingStrategyInterface;
 use App\Pricing\Exception\InvalidPricingRateException;
 
 final class FlatRatePricingStrategy implements PricingStrategyInterface
@@ -14,7 +13,7 @@ final class FlatRatePricingStrategy implements PricingStrategyInterface
         return PricingModel::FlatRate === $pricingModel;
     }
 
-    public function calculate(Equipment $equipment, int $durationInDays): int
+    public function calculate(Equipment $equipment, int $durationInDays): float
     {
         $rates = $equipment->getPricingRates();
         $rate = $rates->first();
