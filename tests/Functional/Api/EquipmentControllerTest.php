@@ -65,17 +65,17 @@ final class EquipmentControllerTest extends WebTestCase
         PricingRateFactory::createSequence([
             [
                 'equipment' => $equipment,
-                'amount' => 20,
+                'amount' => 20.10,
                 'durationInDays' => 1,
             ],
             [
                 'equipment' => $equipment,
-                'amount' => 60,
+                'amount' => 60.55,
                 'durationInDays' => 7,
             ],
             [
                 'equipment' => $equipment,
-                'amount' => 200,
+                'amount' => 200.99,
                 'durationInDays' => 30,
             ],
         ]);
@@ -91,9 +91,9 @@ final class EquipmentControllerTest extends WebTestCase
                 'name' => 'Perceuse',
                 'pricingModel' => PricingModel::Tiered->value,
                 'rates' => [
-                    ['durationInDays' => 1, 'amount' => 20],
-                    ['durationInDays' => 7, 'amount' => 60],
-                    ['durationInDays' => 30, 'amount' => 200],
+                    ['durationInDays' => 1, 'amount' => 20.10],
+                    ['durationInDays' => 7, 'amount' => 60.55],
+                    ['durationInDays' => 30, 'amount' => 200.99],
                 ],
             ], JSON_THROW_ON_ERROR),
             (string) $client->getResponse()->getContent(),

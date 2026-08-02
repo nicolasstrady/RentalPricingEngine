@@ -3,7 +3,7 @@ PHP = $(COMPOSE) exec php
 COMPOSER = $(PHP) composer
 CONSOLE = $(PHP) php bin/console
 
-.PHONY: up down build rebuild install shell logs console database database-create migrate fixtures test-database test coverage analyse cs-fix cs-check lint composer-validate quality
+.PHONY: up down build rebuild install shell logs console database database-drop database-create migrate fixtures fixtures-append test-database test coverage analyse cs-fix cs-check lint composer-validate quality
 
 up:
 	$(COMPOSE) up --build
@@ -29,7 +29,10 @@ logs:
 console:
 	$(CONSOLE)
 
-database: database-create migrate fixtures
+database: database-drop database-create migrate fixtures-append
+
+database-drop:
+	$(CONSOLE) doctrine:database:drop --force --if-exists
 
 database-create:
 	$(CONSOLE) doctrine:database:create --if-not-exists
@@ -39,6 +42,9 @@ migrate:
 
 fixtures:
 	$(CONSOLE) foundry:load-fixtures --no-interaction
+
+fixtures-append:
+	$(CONSOLE) foundry:load-fixtures --no-interaction --append
 
 test-database:
 	$(COMPOSER) test-database

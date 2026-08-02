@@ -22,17 +22,17 @@ final class AppStory extends Story
             [
                 'equipment' => $drill,
                 'durationInDays' => 1,
-                'amount' => 20,
+                'amount' => 20.10,
             ],
             [
                 'equipment' => $drill,
                 'durationInDays' => 7,
-                'amount' => 60,
+                'amount' => 60.55,
             ],
             [
                 'equipment' => $drill,
                 'durationInDays' => 30,
-                'amount' => 200,
+                'amount' => 200.99,
             ],
         ]);
 

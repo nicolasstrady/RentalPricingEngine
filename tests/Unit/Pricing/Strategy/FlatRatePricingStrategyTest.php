@@ -30,12 +30,12 @@ final class FlatRatePricingStrategyTest extends TestCase
         $equipment = $this->createFlatRateEquipment();
         PricingRateFactory::createOne([
             'equipment' => $equipment,
-            'amount' => 150,
+            'amount' => 150.75,
             'durationInDays' => null,
         ]);
 
-        self::assertSame(150, $this->strategy->calculate($equipment, 1));
-        self::assertSame(150, $this->strategy->calculate($equipment, 42));
+        self::assertSame(150.75, $this->strategy->calculate($equipment, 1));
+        self::assertSame(150.75, $this->strategy->calculate($equipment, 42));
     }
 
     public function testItRejectsARateWithADuration(): void

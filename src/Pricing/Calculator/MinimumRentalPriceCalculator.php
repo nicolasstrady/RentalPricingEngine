@@ -4,8 +4,8 @@ namespace App\Pricing\Calculator;
 
 final class MinimumRentalPriceCalculator
 {
-    /** @param list<array{durationInDays: int, amount: int}> $options */
-    public function calculate(int $requestedDays, array $options): int
+    /** @param list<array{durationInDays: int, amount: float}> $options */
+    public function calculate(int $requestedDays, array $options): float
     {
         if ($requestedDays <= 0) {
             throw new \InvalidArgumentException('Requested duration must be positive.');
@@ -20,26 +20,34 @@ final class MinimumRentalPriceCalculator
                 throw new \InvalidArgumentException('Pricing option duration must be positive.');
             }
 
+            if (!is_finite($option['amount'])) {
+                throw new \InvalidArgumentException('Pricing option amount must be finite.');
+            }
+
             if ($option['amount'] < 0) {
                 throw new \InvalidArgumentException('Pricing option amount cannot be negative.');
             }
         }
 
-        $minimumCosts = array_fill(0, $requestedDays + 1, PHP_INT_MAX);
-        $minimumCosts[0] = 0;
+        $minimumCosts = array_fill(0, $requestedDays + 1, INF);
+        $minimumCosts[0] = 0.0;
 
         for ($coveredDays = 0; $coveredDays < $requestedDays; ++$coveredDays) {
-            if (PHP_INT_MAX === $minimumCosts[$coveredDays]) {
+            if (INF === $minimumCosts[$coveredDays]) {
                 continue;
             }
 
             foreach ($options as $option) {
                 $newCoveredDays = min($requestedDays, $coveredDays + $option['durationInDays']);
-                $candidateCost = $minimumCosts[$coveredDays] + $option['amount'];
+                $candidateCost = round(
+                    $minimumCosts[$coveredDays] + $option['amount'],
+                    2,
+                    PHP_ROUND_HALF_UP,
+                );
                 $minimumCosts[$newCoveredDays] = min($minimumCosts[$newCoveredDays], $candidateCost);
             }
         }
 
-        return $minimumCosts[$requestedDays];
+        return round($minimumCosts[$requestedDays], 2, PHP_ROUND_HALF_UP);
     }
 }

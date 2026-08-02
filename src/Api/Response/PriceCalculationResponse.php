@@ -9,7 +9,7 @@ final readonly class PriceCalculationResponse
         public string $startDate,
         public string $endDate,
         public int $durationInDays,
-        public int $amount,
+        public float $amount,
         public string $currency = 'EUR',
     ) {
     }

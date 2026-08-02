@@ -9,7 +9,7 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
     _instanceof:
-        App\Pricing\Contract\PricingStrategyInterface:
+        App\Pricing\Strategy\PricingStrategyInterface:
             tags: ['app.pricing_strategy']
 
     # makes classes in src/ available to be used as services

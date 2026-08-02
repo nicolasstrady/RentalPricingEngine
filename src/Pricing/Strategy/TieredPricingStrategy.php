@@ -18,7 +18,7 @@ final readonly class TieredPricingStrategy implements PricingStrategyInterface
         return PricingModel::Tiered === $pricingModel;
     }
 
-    public function calculate(Equipment $equipment, int $durationInDays): int
+    public function calculate(Equipment $equipment, int $durationInDays): float
     {
         $options = [];
 

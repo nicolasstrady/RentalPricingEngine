@@ -17,7 +17,7 @@ final class PricingRateFactory extends PersistentObjectFactory
     protected function defaults(): array
     {
         return [
-            'amount' => self::faker()->numberBetween(1, 500),
+            'amount' => self::faker()->randomFloat(2, 1, 500),
             'durationInDays' => self::faker()->numberBetween(1, 30),
             'equipment' => EquipmentFactory::new(),
         ];
