@@ -10,6 +10,7 @@ final readonly class EquipmentDetailsResponse
     public function __construct(
         public int $id,
         public string $name,
+        public string $category,
         public string $pricingModel,
         public array $rates,
     ) {
@@ -22,6 +23,7 @@ final readonly class EquipmentDetailsResponse
         return new self(
             id: $summary->id,
             name: $summary->name,
+            category: $summary->category,
             pricingModel: $summary->pricingModel,
             rates: array_values(
                 array_map(

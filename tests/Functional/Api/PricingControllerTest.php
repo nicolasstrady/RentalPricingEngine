@@ -3,6 +3,7 @@
 namespace App\Tests\Functional\Api;
 
 use App\Entity\Equipment;
+use App\Enum\EquipmentCategory;
 use App\Enum\PricingModel;
 use App\Factory\EquipmentFactory;
 use App\Factory\PricingRateFactory;
@@ -34,6 +35,7 @@ final class PricingControllerTest extends WebTestCase
                 'equipment' => [
                     'id' => $equipmentId,
                     'name' => $equipmentName,
+                    'category' => EquipmentCategory::Drill->value,
                     'pricingModel' => PricingModel::Tiered->value,
                 ],
                 'startDate' => '2026-08-01',
@@ -50,6 +52,7 @@ final class PricingControllerTest extends WebTestCase
     {
         $client = self::createClient();
         $equipment = EquipmentFactory::createOne([
+            'category' => EquipmentCategory::CarpetCleaner,
             'pricingModel' => PricingModel::FlatRate,
         ]);
         PricingRateFactory::createOne([
@@ -71,6 +74,7 @@ final class PricingControllerTest extends WebTestCase
                 'equipment' => [
                     'id' => $equipmentId,
                     'name' => $equipmentName,
+                    'category' => EquipmentCategory::CarpetCleaner->value,
                     'pricingModel' => PricingModel::FlatRate->value,
                 ],
                 'startDate' => '2026-08-01',
@@ -145,6 +149,7 @@ final class PricingControllerTest extends WebTestCase
     private function createTieredEquipment(): Equipment
     {
         $equipment = EquipmentFactory::createOne([
+            'category' => EquipmentCategory::Drill,
             'pricingModel' => PricingModel::Tiered,
         ]);
         PricingRateFactory::createSequence([

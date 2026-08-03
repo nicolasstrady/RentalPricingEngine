@@ -2,6 +2,7 @@
 
 namespace App\Story;
 
+use App\Enum\EquipmentCategory;
 use App\Enum\PricingModel;
 use App\Factory\EquipmentFactory;
 use App\Factory\PricingRateFactory;
@@ -13,95 +14,76 @@ final class AppStory extends Story
 {
     public function build(): void
     {
-        $drill = EquipmentFactory::createOne([
-            'name' => 'Perceuse',
+        $this->createTieredEquipment(EquipmentCategory::Drill, 'Perceuse', 20.10, 60.55, 200.99);
+        $this->createTieredEquipment(EquipmentCategory::Drill, 'Perceuse à percussion', 24.90, 79.90, 229.90);
+        $this->createTieredEquipment(EquipmentCategory::Drill, 'Perceuse-visseuse sans fil', 18.50, 69.00, 189.00);
+        $this->createTieredEquipment(EquipmentCategory::Drill, 'Perceuse SDS+', 32.00, 105.00, 319.00);
+
+        $this->createTieredEquipment(EquipmentCategory::Sander, 'Ponceuse', 10.00, 90.00, 250.00);
+        $this->createTieredEquipment(EquipmentCategory::Sander, 'Ponceuse orbitale', 14.50, 72.00, 215.00);
+        $this->createTieredEquipment(EquipmentCategory::Sander, 'Ponceuse excentrique', 17.90, 84.90, 249.90);
+        $this->createTieredEquipment(EquipmentCategory::Sander, 'Ponceuse à bande', 22.00, 99.00, 289.00);
+
+        $this->createTieredEquipment(EquipmentCategory::CircularSaw, 'Scie circulaire', 25.00, 100.00, 500.00);
+        $this->createTieredEquipment(EquipmentCategory::CircularSaw, 'Scie circulaire sur batterie', 29.90, 119.00, 359.00);
+        $this->createTieredEquipment(EquipmentCategory::CircularSaw, 'Scie circulaire plongeante', 38.00, 149.00, 429.00);
+
+        $this->createFlatRateEquipment(EquipmentCategory::PressureWasher, 'Nettoyeur haute pression', 150.00);
+        $this->createFlatRateEquipment(EquipmentCategory::PressureWasher, 'Nettoyeur haute pression compact', 95.00);
+        $this->createFlatRateEquipment(EquipmentCategory::PressureWasher, 'Nettoyeur haute pression professionnel', 210.00);
+
+        $this->createFlatRateEquipment(EquipmentCategory::CarpetCleaner, 'Shampouineuse', 90.00);
+        $this->createFlatRateEquipment(EquipmentCategory::CarpetCleaner, 'Shampouineuse canapé', 65.00);
+        $this->createFlatRateEquipment(EquipmentCategory::CarpetCleaner, 'Shampouineuse professionnelle', 135.00);
+    }
+
+    private function createTieredEquipment(
+        EquipmentCategory $category,
+        string $name,
+        float $dailyRate,
+        float $weeklyRate,
+        float $monthlyRate,
+    ): void {
+        $equipment = EquipmentFactory::createOne([
+            'category' => $category,
+            'name' => $name,
             'pricingModel' => PricingModel::Tiered,
         ]);
 
         PricingRateFactory::createSequence([
             [
-                'equipment' => $drill,
+                'equipment' => $equipment,
                 'durationInDays' => 1,
-                'amount' => 20.10,
+                'amount' => $dailyRate,
             ],
             [
-                'equipment' => $drill,
+                'equipment' => $equipment,
                 'durationInDays' => 7,
-                'amount' => 60.55,
+                'amount' => $weeklyRate,
             ],
             [
-                'equipment' => $drill,
+                'equipment' => $equipment,
                 'durationInDays' => 30,
-                'amount' => 200.99,
+                'amount' => $monthlyRate,
             ],
         ]);
+    }
 
-        $sander = EquipmentFactory::createOne([
-            'name' => 'Ponceuse',
-            'pricingModel' => PricingModel::Tiered,
-        ]);
-
-        PricingRateFactory::createSequence([
-            [
-                'equipment' => $sander,
-                'durationInDays' => 1,
-                'amount' => 10,
-            ],
-            [
-                'equipment' => $sander,
-                'durationInDays' => 7,
-                'amount' => 90,
-            ],
-            [
-                'equipment' => $sander,
-                'durationInDays' => 30,
-                'amount' => 250,
-            ],
-        ]);
-
-        $circularSaw = EquipmentFactory::createOne([
-            'name' => 'Scie circulaire',
-            'pricingModel' => PricingModel::Tiered,
-        ]);
-
-        PricingRateFactory::createSequence([
-            [
-                'equipment' => $circularSaw,
-                'durationInDays' => 1,
-                'amount' => 25,
-            ],
-            [
-                'equipment' => $circularSaw,
-                'durationInDays' => 7,
-                'amount' => 100,
-            ],
-            [
-                'equipment' => $circularSaw,
-                'durationInDays' => 30,
-                'amount' => 500,
-            ],
-        ]);
-
-        $pressureWasher = EquipmentFactory::createOne([
-            'name' => 'Nettoyeur haute pression',
+    private function createFlatRateEquipment(
+        EquipmentCategory $category,
+        string $name,
+        float $amount,
+    ): void {
+        $equipment = EquipmentFactory::createOne([
+            'category' => $category,
+            'name' => $name,
             'pricingModel' => PricingModel::FlatRate,
         ]);
 
         PricingRateFactory::createOne([
-            'equipment' => $pressureWasher,
+            'equipment' => $equipment,
             'durationInDays' => null,
-            'amount' => 150,
-        ]);
-
-        $carpetCleaner = EquipmentFactory::createOne([
-            'name' => 'Shampouineuse',
-            'pricingModel' => PricingModel::FlatRate,
-        ]);
-
-        PricingRateFactory::createOne([
-            'equipment' => $carpetCleaner,
-            'durationInDays' => null,
-            'amount' => 90,
+            'amount' => $amount,
         ]);
     }
 }

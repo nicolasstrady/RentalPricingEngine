@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\EquipmentCategory;
 use App\Enum\PricingModel;
 use App\Repository\EquipmentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -10,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EquipmentRepository::class)]
 #[ORM\Table(name: 'equipment')]
+#[ORM\Index(name: 'idx_equipment_category', columns: ['category'])]
 class Equipment
 {
     #[ORM\Id]
@@ -23,6 +25,9 @@ class Equipment
     #[ORM\Column(length: 20, enumType: PricingModel::class)]
     private PricingModel $pricingModel;
 
+    #[ORM\Column(length: 30, enumType: EquipmentCategory::class)]
+    private EquipmentCategory $category;
+
     /** @var Collection<int, PricingRate> */
     #[ORM\OneToMany(
         targetEntity: PricingRate::class,
@@ -33,11 +38,15 @@ class Equipment
     #[ORM\OrderBy(['durationInDays' => 'ASC'])]
     private Collection $pricingRates;
 
-    public function __construct(string $name, PricingModel $pricingModel)
-    {
+    public function __construct(
+        string $name,
+        PricingModel $pricingModel,
+        EquipmentCategory $category = EquipmentCategory::Drill,
+    ) {
         $this->pricingRates = new ArrayCollection();
         $this->setName($name);
         $this->pricingModel = $pricingModel;
+        $this->category = $category;
     }
 
     public function getId(): ?int
@@ -69,6 +78,16 @@ class Equipment
     public function setPricingModel(PricingModel $pricingModel): void
     {
         $this->pricingModel = $pricingModel;
+    }
+
+    public function getCategory(): EquipmentCategory
+    {
+        return $this->category;
+    }
+
+    public function setCategory(EquipmentCategory $category): void
+    {
+        $this->category = $category;
     }
 
     /** @return Collection<int, PricingRate> */

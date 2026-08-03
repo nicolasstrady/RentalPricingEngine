@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Entity;
 
+use App\Enum\EquipmentCategory;
 use App\Enum\PricingModel;
 use App\Factory\EquipmentFactory;
 use App\Factory\PricingRateFactory;
@@ -12,6 +13,7 @@ final class EquipmentTest extends TestCase
     public function testItTrimsItsNameAndManagesPricingRates(): void
     {
         $equipment = EquipmentFactory::createOne([
+            'category' => EquipmentCategory::Drill,
             'name' => '  Perceuse  ',
             'pricingModel' => PricingModel::Tiered,
         ]);
@@ -22,6 +24,7 @@ final class EquipmentTest extends TestCase
         ]);
 
         self::assertSame('Perceuse', $equipment->getName());
+        self::assertSame(EquipmentCategory::Drill, $equipment->getCategory());
         self::assertSame(PricingModel::Tiered, $equipment->getPricingModel());
         self::assertTrue($equipment->getPricingRates()->contains($rate));
         self::assertSame($equipment, $rate->getEquipment());
@@ -33,6 +36,10 @@ final class EquipmentTest extends TestCase
         $equipment->setPricingModel(PricingModel::FlatRate);
 
         self::assertSame(PricingModel::FlatRate, $equipment->getPricingModel());
+
+        $equipment->setCategory(EquipmentCategory::Sander);
+
+        self::assertSame(EquipmentCategory::Sander, $equipment->getCategory());
 
         $equipment->removePricingRate($rate);
 

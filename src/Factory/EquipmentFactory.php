@@ -3,6 +3,7 @@
 namespace App\Factory;
 
 use App\Entity\Equipment;
+use App\Enum\EquipmentCategory;
 use App\Enum\PricingModel;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
@@ -18,6 +19,7 @@ final class EquipmentFactory extends PersistentObjectFactory
     protected function defaults(): array
     {
         return [
+            'category' => self::faker()->randomElement(EquipmentCategory::cases()),
             'name' => rtrim(self::faker()->unique()->sentence(3), '.'),
             'pricingModel' => self::faker()->randomElement(PricingModel::cases()),
         ];

@@ -17,8 +17,8 @@ final class AppStoryTest extends KernelTestCase
     {
         AppStory::load();
 
-        EquipmentFactory::assert()->count(5);
-        PricingRateFactory::assert()->count(11);
+        EquipmentFactory::assert()->count(17);
+        PricingRateFactory::assert()->count(39);
 
         self::getContainer()->get(EntityManagerInterface::class)->clear();
 

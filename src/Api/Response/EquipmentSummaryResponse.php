@@ -9,6 +9,7 @@ final readonly class EquipmentSummaryResponse
     public function __construct(
         public int $id,
         public string $name,
+        public string $category,
         public string $pricingModel,
     ) {
     }
@@ -24,6 +25,7 @@ final readonly class EquipmentSummaryResponse
         return new self(
             id: $id,
             name: $equipment->getName(),
+            category: $equipment->getCategory()->value,
             pricingModel: $equipment->getPricingModel()->value,
         );
     }
