@@ -1,0 +1,152 @@
+<div class="details-shell">
+  <header class="site-header">
+    <a class="brand" routerLink="/" aria-label="Atelier Loc, retour au catalogue">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span>
+        <strong>Atelier Loc</strong>
+        <small>Le bon outil, au bon prix.</small>
+      </span>
+    </a>
+
+    <a class="back-link" routerLink="/"><span aria-hidden="true">←</span> Retour au catalogue</a>
+  </header>
+
+  <main>
+    @if (loading()) {
+      <section class="loading-state" aria-live="polite" aria-busy="true">
+        <span class="spinner" aria-hidden="true"></span>
+        <p>Chargement de l’équipement…</p>
+      </section>
+    } @else if (error()) {
+      <section class="error-state" role="alert">
+        <span aria-hidden="true">!</span>
+        <p class="eyebrow">Équipement indisponible</p>
+        <h1>Impossible d’afficher ce matériel.</h1>
+        <p>L’équipement demandé n’existe pas ou l’API Symfony ne répond pas.</p>
+        <div class="error-actions">
+          <button type="button" (click)="loadEquipment()">Réessayer</button>
+          <a routerLink="/">Retour au catalogue</a>
+        </div>
+      </section>
+    } @else if (equipment(); as item) {
+      <a class="mobile-back-link" routerLink="/">← Retour au catalogue</a>
+
+      <section class="equipment-hero">
+        <div class="equipment-visual">
+          @if (presentation(); as content) {
+            <img [src]="content.imageUrl" [alt]="item.name" width="1440" height="1080" />
+            <span>{{ content.useCase }}</span>
+          }
+        </div>
+
+        <div class="equipment-heading">
+          <p class="eyebrow">{{ categoryLabel(item.category) }} · N° {{ item.id }}</p>
+          <h1>{{ item.name }}</h1>
+          @if (presentation(); as content) {
+            <p class="lead">{{ content.description }}</p>
+          }
+
+          <dl class="equipment-facts">
+            <div>
+              <dt>Catégorie</dt>
+              <dd>{{ categoryLabel(item.category) }}</dd>
+            </div>
+            <div>
+              <dt>Modèle tarifaire</dt>
+              <dd>{{ pricingModelLabel(item.pricingModel) }}</dd>
+            </div>
+            <div>
+              <dt>Devise</dt>
+              <dd>Euros (€)</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="rates-section" aria-labelledby="rates-title">
+        <div class="rates-heading">
+          <div>
+            <p class="eyebrow">Grille tarifaire</p>
+            <h2 id="rates-title">Tous les tarifs disponibles</h2>
+          </div>
+          <p>{{ item.rates.length }} {{ item.rates.length === 1 ? 'tarif' : 'tarifs' }}</p>
+        </div>
+
+        <div class="rates-grid">
+          @for (rate of item.rates; track rate.durationInDays) {
+            <article class="rate-card">
+              <small>{{ rateDurationLabel(rate.durationInDays) }}</small>
+              <strong>{{ rate.amount | currency: 'EUR' : 'symbol' : '1.2-2' }}</strong>
+              <span>{{
+                item.pricingModel === 'flat_rate' ? 'pour toute la période' : 'forfait'
+              }}</span>
+            </article>
+          }
+        </div>
+
+        <p class="rates-note">
+          Le meilleur prix final est calculé par l’API selon la durée de location et la combinaison
+          de forfaits la plus avantageuse.
+        </p>
+
+        <div class="price-calculator">
+          <div class="calculator-heading">
+            <div>
+              <p class="eyebrow">Votre location</p>
+              <h3>Calculez le montant pour vos dates</h3>
+            </div>
+            <p>Le résultat se met à jour automatiquement.</p>
+          </div>
+
+          <form class="date-form" [formGroup]="dateForm">
+            <label>
+              <span>Date de début</span>
+              <input type="date" formControlName="startDate" />
+            </label>
+            <span class="date-arrow" aria-hidden="true">→</span>
+            <label>
+              <span>Date de fin</span>
+              <input
+                type="date"
+                formControlName="endDate"
+                [min]="dateForm.controls.startDate.value"
+              />
+            </label>
+          </form>
+
+          <div class="calculation-result" aria-live="polite">
+            @if (calculationLoading()) {
+              <span class="spinner" aria-hidden="true"></span>
+              <div>
+                <small>Calcul en cours</small>
+                <strong>Recherche du meilleur tarif…</strong>
+              </div>
+            } @else if (calculation(); as result) {
+              <div>
+                <small>Montant pour {{ result.durationInDays }} jours</small>
+                <strong>{{
+                  result.amount | currency: result.currency : 'symbol' : '1.2-2'
+                }}</strong>
+              </div>
+              <span class="result-period">Du {{ result.startDate }} au {{ result.endDate }}</span>
+            } @else if (calculationError(); as message) {
+              <div class="calculation-error" role="alert">
+                <small>Période invalide</small>
+                <strong>{{ message }}</strong>
+              </div>
+            } @else {
+              <div>
+                <small>Montant de la location</small>
+                <strong>Renseignez les deux dates</strong>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+    }
+  </main>
+
+  <footer>
+    <p>Tarifs exprimés en euros et fournis par l’API Symfony.</p>
+  </footer>
+</div>

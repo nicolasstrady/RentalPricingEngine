@@ -4,11 +4,11 @@ API back-end Symfony permettant de calculer le prix minimal d'une location de ma
 
 Le catalogue prend en charge deux modèles de facturation : une tarification dégressive composée de forfaits jour, semaine (7 jours) et mois (30 jours), et une tarification fixe identique quelle que soit la durée. Pour le modèle dégressif, le moteur recherche la combinaison de forfaits la moins chère et peut retenir un forfait couvrant plus de jours que la période demandée.
 
-Le projet utilise PHP 8.4, Symfony 7.4 LTS, Doctrine ORM, MySQL 8.4, Zenstruck Foundry, PHPUnit, PHPStan, PHP CS Fixer et Docker Compose.
+Le projet utilise PHP 8.4, Symfony 7.4 LTS, Doctrine ORM, MySQL 8.4, Angular 21 LTS, TypeScript, Vitest, Zenstruck Foundry, PHPUnit, PHPStan, PHP CS Fixer et Docker Compose.
 
 ## Installation et environnement
 
-Prérequis : Git, Docker avec Docker Compose v2 et GNU Make. Les ports `8000` et `3306` doivent être disponibles. PHP, Composer, MySQL et Xdebug sont fournis par les conteneurs.
+Prérequis : Git, Docker avec Docker Compose v2 et GNU Make. Les ports `4200`, `8000` et `3306` doivent être disponibles. Node.js, PHP, Composer, MySQL et Xdebug sont fournis par les conteneurs.
 
 ```bash
 git clone https://github.com/nicolasstrady/RentalPricingEngine.git
@@ -21,23 +21,27 @@ make database
 
 Sous l'invite de commandes Windows, utiliser `copy .env.example .env` à la place de `cp`.
 
-`make database` supprime puis recrée la base principale, exécute les migrations Doctrine et charge le catalogue de démonstration avec Foundry. Toutes les données locales existantes sont donc remplacées. L'API est ensuite disponible sur <http://localhost:8000>.
+`make database` supprime puis recrée la base principale, exécute les migrations Doctrine et charge le catalogue de démonstration avec Foundry. Toutes les données locales existantes sont donc remplacées. L'interface est disponible sur <http://localhost:4200> et l'API sur <http://localhost:8000>.
 
 | Commande | Action |
 |---|---|
 | `make up` | Démarrer les conteneurs |
 | `make rebuild` | Reconstruire puis démarrer les conteneurs |
 | `make down` | Arrêter les conteneurs |
-| `make install` | Installer les dépendances Composer |
+| `make install` | Installer les dépendances Composer et npm |
 | `make database` | Recréer la base, migrer et charger les fixtures |
 | `make database-create` | Créer uniquement la base principale |
 | `make migrate` | Exécuter les migrations Doctrine |
 | `make fixtures` | Recharger les fixtures Foundry |
 | `make console` | Ouvrir la console Symfony |
 | `make shell` | Ouvrir un shell dans le conteneur PHP |
+| `make frontend-shell` | Ouvrir un shell dans le conteneur Angular |
 | `make logs` | Suivre les logs Docker |
 | `make test` | Préparer la base de test et lancer PHPUnit |
-| `make quality` | Lancer Composer Validate, PHP CS Fixer, PHPStan et PHPUnit |
+| `make frontend-test` | Lancer les tests Angular avec Vitest |
+| `make frontend-check` | Vérifier le formatage Angular et TypeScript |
+| `make frontend-build` | Produire le build Angular de production |
+| `make quality` | Vérifier le back-end puis tester et compiler Angular |
 | `make coverage` | Générer le rapport de couverture avec Xdebug |
 
 Le modèle de données repose sur deux entités : `Equipment` porte le nom et le modèle tarifaire du matériel, tandis que `PricingRate` associe un montant et éventuellement une durée à cet équipement. La durée vaut `1`, `7` ou `30` pour un tarif dégressif et `null` pour un forfait fixe.
@@ -52,6 +56,8 @@ Le catalogue fourni contient au moins un équipement pour chacun des modèles de
 | Nettoyeur haute pression | Fixe | 150 par location |
 | Shampouineuse | Fixe | 90 par location |
 
+Les fixtures ajoutent également plusieurs variantes de chaque famille (perceuses à percussion, SDS+ et sans fil, différentes ponceuses et scies, nettoyeurs et shampouineuses), soit 17 équipements et 39 tarifs de démonstration.
+
 Une base suffixée par `_test` est préparée séparément pour PHPUnit afin de ne pas modifier les données de développement.
 
 ## API et règles métier
@@ -61,6 +67,7 @@ Toutes les routes renvoient du JSON.
 | Méthode | Route | Résultat |
 |---|---|---|
 | `GET` | `/api/equipments` | Liste des équipements sans leurs tarifs |
+| `GET` | `/api/equipments/categories` | Liste des grandes catégories disponibles |
 | `GET` | `/api/equipments/{id}` | Détail d'un équipement avec ses tarifs |
 | `POST` | `/api/equipments/{id}/pricing/calculate` | Prix minimal entre deux dates |
 
@@ -99,6 +106,25 @@ Les dates utilisent le format `YYYY-MM-DD` et la date de fin doit être postéri
 
 Les montants sont exprimés directement en euros avec des décimales, jamais en centimes entiers. Ils sont manipulés comme des `float` dans le domaine et dans les réponses API : `60.55` représente ainsi 60 euros et 55 centimes. Les tarifs et les résultats des calculs sont arrondis à deux chiffres après la virgule avec un arrondi commercial (`PHP_ROUND_HALF_UP`).
 
+## Interface Angular
+
+Le dossier `frontend/` contient un démonstrateur Angular responsive du moteur de tarification. Un premier appel léger à `GET /api/equipments/categories` alimente le sélecteur de grandes catégories placé avec les dates. Aucun équipement ni calcul de prix n'est chargé avant cette sélection. Angular récupère ensuite uniquement la famille choisie avec `GET /api/equipments?category=drill`, par exemple, puis appelle `POST /api/equipments/{id}/pricing/calculate` pour chacun de ces résultats. Le nombre de calculs dépend ainsi de la catégorie filtrée et non de la taille totale du catalogue.
+
+Chaque carte mène à `/equipments/{id}`. Cette page appelle `GET /api/equipments/{id}` et présente les informations du matériel ainsi que sa grille complète de tarifs journaliers, hebdomadaires, mensuels ou fixes. Deux champs de date permettent également d'appeler le calculateur pour afficher automatiquement le montant exact de la location sous cette grille.
+
+Le front est organisé par fonctionnalité autour de `rental-catalog/` :
+
+- `rental-pricing.models.ts` décrit les contrats JSON échangés avec Symfony ;
+- `rental-pricing-api.ts` centralise les appels HTTP ;
+- `rental-catalog-page.ts` porte le formulaire, les états d'interface et l'orchestration des calculs ;
+- le template affiche les chargements, erreurs et tarifs sans reproduire les règles métier du back-end.
+
+Les cinq images du catalogue sont des fichiers WebP générés pour la démonstration et conservés dans `frontend/public/images/`. Le navigateur ne dépend donc d'aucun service d'images externe.
+
+L'indicateur « Disponible » prépare visuellement une future gestion des réservations. Il reste explicitement simulé : aucun stock ni conflit de dates n'est inventé tant que l'API ne fournit pas cette information.
+
+En développement, Angular relaie les requêtes `/api` vers Symfony : `localhost:8000` hors Docker et le service `php:8000` dans Docker Compose. Cette configuration évite d'ouvrir inutilement les CORS du back-end.
+
 ## Architecture
 
 Le moteur applique le design pattern Strategy afin d'isoler chaque règle de tarification :
@@ -111,7 +137,9 @@ Le moteur applique le design pattern Strategy afin d'isoler chaque règle de tar
 
 ```mermaid
 flowchart LR
-    Client[Client HTTP] --> Controller[PricingController]
+    Browser[Navigateur] --> Angular[Catalogue Angular]
+    Angular --> EquipmentController[EquipmentController]
+    Angular --> Controller[PricingController]
     Controller --> Engine[PricingEngine]
     Engine -->|tiered| Tiered[TieredPricingStrategy]
     Engine -->|flat_rate| Flat[FlatRatePricingStrategy]
@@ -140,7 +168,7 @@ Cette méthode couvre aussi bien les combinaisons de mois, semaines et jours que
 
 ## Tests et qualité
 
-La commande suivante exécute toutes les vérifications :
+La commande suivante exécute toutes les vérifications du back-end et du front-end :
 
 ```bash
 make quality
@@ -153,7 +181,9 @@ Les tests couvrent :
 - les stratégies fixe et dégressive ;
 - la sélection des stratégies par le moteur ;
 - les fixtures Foundry ;
-- les endpoints, la sérialisation et la validation des dates.
+- les endpoints, la sérialisation et la validation des dates ;
+- le service HTTP Angular, l'absence de calcul avant filtrage et le calcul des seuls équipements de la catégorie sélectionnée ;
+- la compilation de production Angular.
 
 Pour produire la couverture :
 

@@ -2,8 +2,9 @@ COMPOSE = docker compose
 PHP = $(COMPOSE) exec php
 COMPOSER = $(PHP) composer
 CONSOLE = $(PHP) php bin/console
+FRONTEND = $(COMPOSE) exec frontend
 
-.PHONY: up down build rebuild install shell logs console database database-drop database-create migrate fixtures fixtures-append test-database test coverage analyse cs-fix cs-check lint composer-validate quality
+.PHONY: up down build rebuild install backend-install frontend-install shell frontend-shell logs console database database-drop database-create migrate fixtures fixtures-append test-database test frontend-check frontend-test frontend-build coverage analyse cs-fix cs-check lint composer-validate quality
 
 up:
 	$(COMPOSE) up --build
@@ -17,11 +18,19 @@ build:
 rebuild:
 	$(COMPOSE) up --detach --build
 
-install:
+install: backend-install frontend-install
+
+backend-install:
 	$(COMPOSER) install
+
+frontend-install:
+	$(FRONTEND) npm ci
 
 shell:
 	$(PHP) sh
+
+frontend-shell:
+	$(FRONTEND) sh
 
 logs:
 	$(COMPOSE) logs --follow
@@ -52,6 +61,15 @@ test-database:
 test:
 	$(COMPOSER) test
 
+frontend-test:
+	$(FRONTEND) npm run test:ci
+
+frontend-check:
+	$(FRONTEND) npm run format:check
+
+frontend-build:
+	$(FRONTEND) npm run build
+
 coverage: test-database
 	$(COMPOSE) exec -e XDEBUG_MODE=coverage php php bin/phpunit --coverage-text --coverage-html var/coverage
 
@@ -69,4 +87,4 @@ lint: cs-check analyse
 composer-validate:
 	$(COMPOSER) validate --strict
 
-quality: composer-validate lint test
+quality: composer-validate lint test frontend-check frontend-test frontend-build

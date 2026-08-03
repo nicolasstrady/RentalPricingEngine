@@ -1,0 +1,216 @@
+<div class="site-shell">
+  <header class="site-header">
+    <a class="brand" href="#catalogue" aria-label="Atelier Loc, retour au catalogue">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span>
+        <strong>Atelier Loc</strong>
+        <small>Le bon outil, au bon prix.</small>
+      </span>
+    </a>
+
+    <div class="tech-badge" aria-label="Démonstration technique Symfony et Angular">
+      <span></span>
+      Symfony API · Angular
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">Location de matériel simplifiée</p>
+      <h1 id="page-title">Votre projet commence avec le bon équipement.</h1>
+      <p class="hero-copy">
+        Choisissez une grande catégorie et votre période pour comparer les meilleurs tarifs des
+        équipements correspondants.
+      </p>
+    </section>
+
+    <section class="period-card" aria-labelledby="period-title">
+      <div class="period-intro">
+        <span class="step">01</span>
+        <div>
+          <p class="section-kicker">Votre recherche</p>
+          <h2 id="period-title">Quel matériel, et quand&nbsp;?</h2>
+        </div>
+      </div>
+
+      <form class="period-form" [formGroup]="periodForm">
+        <label class="equipment-select">
+          <span>Grande catégorie</span>
+          <span class="select-field">
+            <select formControlName="category" aria-label="Grande catégorie de matériel">
+              <option value="">Choisir une catégorie</option>
+              @for (category of categories(); track category.value) {
+                <option [value]="category.value">{{ category.label }}</option>
+              }
+            </select>
+          </span>
+        </label>
+
+        <label>
+          <span>Date de début</span>
+          <span class="date-field">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M7 2v3M17 2v3M3.5 9h17M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z" />
+            </svg>
+            <input type="date" formControlName="startDate" />
+          </span>
+        </label>
+
+        <span class="date-arrow" aria-hidden="true">→</span>
+
+        <label>
+          <span>Date de fin</span>
+          <span class="date-field">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M7 2v3M17 2v3M3.5 9h17M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z" />
+            </svg>
+            <input
+              type="date"
+              formControlName="endDate"
+              [min]="periodForm.controls.startDate.value"
+            />
+          </span>
+        </label>
+      </form>
+
+      @if (periodError()) {
+        <p class="form-error" role="alert">{{ periodError() }}</p>
+      } @else {
+        <p class="period-hint">
+          Aucun équipement ni calcul de prix n’est chargé avant le choix d’une catégorie.
+        </p>
+      }
+    </section>
+
+    <section class="catalog" id="catalogue" aria-labelledby="catalog-title">
+      <div class="catalog-heading">
+        <div>
+          <p class="section-kicker">Notre sélection</p>
+          <h2 id="catalog-title">Le matériel qu’il vous faut</h2>
+        </div>
+        @if (!catalogLoading() && !catalogError()) {
+          <p>
+            @if (selectedCategoryLabel(); as categoryLabel) {
+              <strong>{{ equipmentCount() }}</strong> résultats · {{ categoryLabel }}
+            } @else {
+              Choisissez une catégorie pour commencer
+            }
+          </p>
+        }
+      </div>
+
+      @if (catalogLoading()) {
+        <div class="equipment-grid" aria-label="Chargement du catalogue" aria-busy="true">
+          @for (placeholder of [1, 2, 3, 4, 5]; track placeholder) {
+            <article class="equipment-card skeleton-card">
+              <div class="skeleton skeleton-image"></div>
+              <div class="card-body">
+                <div class="skeleton skeleton-line short"></div>
+                <div class="skeleton skeleton-line title"></div>
+                <div class="skeleton skeleton-line"></div>
+                <div class="skeleton skeleton-price"></div>
+              </div>
+            </article>
+          }
+        </div>
+      } @else if (catalogError()) {
+        <div class="catalog-error" role="alert">
+          <span aria-hidden="true">!</span>
+          <div>
+            <h3>Le catalogue n’a pas pu être chargé.</h3>
+            <p>Vérifiez que l’API Symfony est démarrée, puis réessayez.</p>
+          </div>
+          <button type="button" (click)="retryCatalog()">Réessayer</button>
+        </div>
+      } @else if (!selectedCategory()) {
+        <div class="catalog-empty">
+          <span aria-hidden="true">⌕</span>
+          <h3>Sélectionnez une grande catégorie</h3>
+          <p>Les équipements et leurs tarifs apparaîtront ici après votre choix.</p>
+        </div>
+      } @else {
+        <div class="equipment-grid">
+          @for (item of equipment(); track item.equipment.id) {
+            <article class="equipment-card">
+              <div class="equipment-image">
+                <img
+                  [src]="item.presentation.imageUrl"
+                  [alt]="item.equipment.name"
+                  width="1440"
+                  height="1080"
+                />
+                <span class="use-case">{{ item.presentation.useCase }}</span>
+              </div>
+
+              <div class="card-body">
+                <div class="card-meta">
+                  <span>{{ pricingModelLabel(item.equipment.pricingModel) }}</span>
+                  <span class="reference"
+                    >N° {{ item.equipment.id.toString().padStart(2, '0') }}</span
+                  >
+                </div>
+
+                <h3>{{ item.equipment.name }}</h3>
+                <p class="description">{{ item.presentation.description }}</p>
+
+                <a
+                  class="details-link"
+                  [routerLink]="['/equipments', item.equipment.id]"
+                  [attr.aria-label]="'Voir le détail de ' + item.equipment.name"
+                >
+                  Voir l’équipement <span aria-hidden="true">→</span>
+                </a>
+
+                <div class="price-panel" [class.is-loading]="item.priceStatus === 'loading'">
+                  @if (item.priceStatus === 'loading') {
+                    <span class="spinner" aria-hidden="true"></span>
+                    <div>
+                      <small>Calcul en cours</small>
+                      <strong>Meilleur tarif…</strong>
+                    </div>
+                  } @else if (item.calculation; as calculation) {
+                    <div>
+                      <small>Pour {{ durationLabel(calculation.durationInDays) }}</small>
+                      <strong>
+                        {{
+                          calculation.amount | currency: calculation.currency : 'symbol' : '1.2-2'
+                        }}
+                      </strong>
+                    </div>
+                    <span class="availability"><i></i> Disponible*</span>
+                  } @else if (item.priceStatus === 'error') {
+                    <div>
+                      <small>Tarif indisponible</small>
+                      <strong>Réessayez</strong>
+                    </div>
+                    <button type="button" class="retry-button" (click)="calculateCategoryPrices()">
+                      Relancer
+                    </button>
+                  } @else {
+                    <div>
+                      <small>Corrigez la période</small>
+                      <strong>—</strong>
+                    </div>
+                  }
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      }
+
+      <p class="availability-note">
+        * La disponibilité est simulée pour cette démonstration. L’API actuelle calcule les tarifs,
+        mais ne gère pas encore les réservations ni les stocks.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="brand footer-brand">
+      <span class="brand-mark" aria-hidden="true">A</span>
+      <span><strong>Atelier Loc</strong><small>Démonstrateur Rental Pricing Engine</small></span>
+    </div>
+    <p>Tarifs calculés en temps réel par l’API Symfony.</p>
+  </footer>
+</div>
